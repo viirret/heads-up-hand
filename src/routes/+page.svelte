@@ -42,7 +42,6 @@
 {#if !g.player1Hand.length && !g.player2Hand.length && !g.commonCards.length}
 	<button on:click={startGame}>Start game</button>
 {:else}
-	<h2>Your Hand: {g.player1Hand.join(', ')}</h2>
 	<p>Share this link with Player 2:</p>
 	<input readonly value={shareableLink} />
 	<p>Check hand</p>

@@ -1,5 +1,5 @@
 function createDeck(): string[] {
-	const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+	const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
 
 	const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { GameData } from '$lib/gamedata';
-	import { compareHands, createHand } from '$lib/poker';
+	import { compareHands, createHand, getCardImage } from '$lib/poker';
 
 	let g: GameData = {
 		player1Hand: [],
@@ -10,13 +10,19 @@
 		role: undefined
 	};
 
-	let resultString = '';
+	// String values of hand "types"
 	let yourHand = '';
 	let opponentHand = '';
+
+	// Victory, loss, split
+	let resultString = '';
+
+	// Different community cards
 	let flopCards: string[] = [];
 	let turnCard: string = '';
 	let riverCard: string = '';
 
+	let showOpponentCards = false;
 	let showingFlop = false;
 	let showingTurn = false;
 	let showingRiver = false;
@@ -25,21 +31,35 @@
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
+	// Function to update the hand types
+	function updateHandTypes(commonCards: string[]) {
+		yourHand = createHand(g.player1Hand, commonCards).type.toString();
+		opponentHand = createHand(g.player2Hand, commonCards).type.toString();
+	}
+
 	async function revealCards() {
-		// Reveal the flop (first 3 cards)
-		showingFlop = true;
-		flopCards = g.commonCards.slice(0, 3);
+		// Reveal own cards
+		updateHandTypes([]);
+
 		await delay(1000);
+		showOpponentCards = true;
+
+		// Reveal the flop (first 3 cards)
+		await delay(1000);
+		flopCards = g.commonCards.slice(0, 3);
+		updateHandTypes(flopCards);
+		showingFlop = true;
 
 		// Reveal the turn (4th card)
-		showingTurn = true;
-		turnCard = g.commonCards[3];
 		await delay(1000);
+		turnCard = g.commonCards[3];
+		updateHandTypes(g.commonCards.slice(0, 4));
+		showingTurn = true;
 
 		// Reveal the river (5th card)
-		showingRiver = true;
-		riverCard = g.commonCards[4];
 		await delay(1000);
+		riverCard = g.commonCards[4];
+		showingRiver = true;
 
 		// Compare hands after all cards are revealed
 		if (g.role === 'player1') {
@@ -85,29 +105,49 @@
 </script>
 
 {#if g.player1Hand.length && g.player2Hand.length && g.commonCards.length}
+	{#if showOpponentCards}
+		{#if g.role == 'player1'}
+			<h2>Opponents hand: {g.player2Hand.join(', ')}</h2>
+			<h2>{opponentHand}</h2>
+			<img src={getCardImage(g.player2Hand[0])} alt={g.player2Hand[0]} width="100" height="150" />
+			<img src={getCardImage(g.player2Hand[1])} alt={g.player2Hand[1]} width="100" height="150" />
+		{:else if g.role == 'player2'}
+			<h2>Opponents hand: {g.player1Hand.join(', ')}</h2>
+			<h2>{opponentHand}</h2>
+			<img src={getCardImage(g.player1Hand[0])} alt={g.player1Hand[0]} width="100" height="150" />
+			<img src={getCardImage(g.player1Hand[1])} alt={g.player1Hand[1]} width="100" height="150" />
+		{:else}
+			<h1>No role!</h1>
+		{/if}
+	{/if}
+
+	{#if showingFlop}
+		<h2>Community cards:</h2>
+		<img src={getCardImage(flopCards[0])} alt={flopCards[0]} width="100" height="150" />
+		<img src={getCardImage(flopCards[1])} alt={flopCards[1]} width="100" height="150" />
+		<img src={getCardImage(flopCards[2])} alt={flopCards[2]} width="100" height="150" />
+	{/if}
+	{#if showingTurn}
+		<img src={getCardImage(turnCard)} alt={turnCard} width="100" height="150" />
+	{/if}
+	{#if showingRiver}
+		<img src={getCardImage(riverCard)} alt={riverCard} width="100" height="150" />
+	{/if}
 	{#if g.role == 'player1'}
 		<h2>Your hand: {g.player1Hand.join(', ')}</h2>
-		<h2>Your hand type: {yourHand}</h2>
-		<h2>Opponents hand: {g.player2Hand.join(', ')}</h2>
-		<h2>Your opponent hand type: {opponentHand}</h2>
+		<h2>{yourHand}</h2>
+		<img src={getCardImage(g.player1Hand[0])} alt={g.player1Hand[0]} width="100" height="150" />
+		<img src={getCardImage(g.player1Hand[1])} alt={g.player1Hand[1]} width="100" height="150" />
 	{:else if g.role == 'player2'}
 		<h2>Your hand: {g.player2Hand.join(', ')}</h2>
-		<h2>Your hand type: {yourHand}</h2>
-		<h2>Challengers hand: {g.player1Hand.join(', ')}</h2>
-		<h2>Your challengers hand type: {opponentHand}</h2>
+		<h2>{yourHand}</h2>
+		<img src={getCardImage(g.player2Hand[0])} alt={g.player2Hand[0]} width="100" height="150" />
+		<img src={getCardImage(g.player2Hand[1])} alt={g.player2Hand[1]} width="100" height="150" />
 	{:else}
 		<h1>No role!</h1>
 	{/if}
 
-	<h2>Common Cards:</h2>
-	{#if showingFlop}
-		<h3>Flop: {flopCards.join(', ')}</h3>
-	{/if}
-	{#if showingTurn}
-		<h3>Turn: {turnCard}</h3>
-	{/if}
 	{#if showingRiver}
-		<h3>River: {riverCard}</h3>
+		<h2>Result: {resultString}</h2>
 	{/if}
-	<h2>Result: {resultString}</h2>
 {/if}

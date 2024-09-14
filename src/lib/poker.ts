@@ -148,16 +148,16 @@ function combineReadyHand(ownHand: string[], commonCard: string[]): string[] {
 }
 
 enum HandType {
-	royal_flush = 'ROYAL_FLUSH',
-	straight_flush = 'STRAIGHT_FLUSH',
-	four_of_a_kind = 'FOUR_OF_A_KIND',
-	full_house = 'FULL_HOUSE',
-	flush = 'FLUSH',
-	straight = 'STRAIGHT',
-	three_of_a_kind = 'THREE_OF_A_KIND',
-	two_pair = 'TWO_PAIR',
-	pair = 'PAIR',
-	high_card = 'HIGH_CARD'
+	royal_flush = 'Royal flush',
+	straight_flush = 'Straight flush',
+	four_of_a_kind = 'Four of a kind',
+	full_house = 'Full house',
+	flush = 'Flush',
+	straight = 'Straight',
+	three_of_a_kind = 'Three of a kind',
+	two_pair = 'Two pair',
+	pair = 'One pair',
+	high_card = 'High card'
 }
 
 const handOrder = {
@@ -419,4 +419,31 @@ export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {
 	} else {
 		return HandResult.error;
 	}
+}
+
+export function getCardImage(card: string): string {
+	const rank = extractRank(card);
+	const suit = extractSuit(card);
+	const rankStrength = rankValue(rank);
+
+	let cardPath = '/cards/English_pattern_';
+
+	if (rankStrength < 10) {
+		cardPath += rank;
+	} else if (rankStrength == 10) {
+		cardPath += "10";
+	} else if (rankStrength === 11) {
+		cardPath += 'jack';
+	} else if (rankStrength === 12) {
+		cardPath += 'queen';
+	} else if (rankStrength === 13) {
+		cardPath += 'king';
+	} else if (rankStrength === 14) {
+		cardPath += 'ace';
+	} else {
+		console.error('Undefined card strenght');
+	}
+
+	cardPath += '_of_' + suit + '.svg';
+	return cardPath;
 }

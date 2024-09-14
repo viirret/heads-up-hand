@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { dealGame } from '$lib/poker';
+    import { dealGame } from '$lib/deck';
     import { createHash } from '$lib/hash'
     import type { GameData } from '$lib/gamedata'
 

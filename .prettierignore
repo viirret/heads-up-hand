@@ -1,9 +1,10 @@
 # Ignore everything recursively
 *
 
-# But not the .ts or svelte files
+# But not these files
 !*.ts
 !*.svelte
+!*.json
 
 # Check subdirectories too
 !*/

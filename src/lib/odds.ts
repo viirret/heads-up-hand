@@ -65,7 +65,7 @@ export function getOdds(
 	return winPercentage + tiePercentage / 2; // Ties split the percentage
 }
 
-// Normalize odds.
+// Get the odds from comparing winning percentages.
 export function calculateOdds(
 	playerWinPercent: number,
 	opponentWinPercent: number

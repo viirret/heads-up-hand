@@ -151,58 +151,70 @@
 
 <div class="center-container">
 	{#if g.player1Hand.length && g.player2Hand.length && g.communityCards.length}
-		{#if g.role == 'player1'}
-			<h2>Opponent</h2>
-			<h2>{opponentHandString} {formatPercentage(100 - winPercentage)}</h2>
-			<div class="card-row">
-				<img src={getCardImage(g.player2Hand[0])} alt={g.player2Hand[0]} />
-				<img src={getCardImage(g.player2Hand[1])} alt={g.player2Hand[1]} />
-			</div>
-		{:else if g.role == 'player2'}
-			<h2>Opponent</h2>
-			<h2>{opponentHandString} {formatPercentage(100 - winPercentage)}</h2>
-			<div class="card-row">
-				<img src={getCardImage(g.player1Hand[0])} alt={g.player1Hand[0]} />
-				<img src={getCardImage(g.player1Hand[1])} alt={g.player1Hand[1]} />
-			</div>
-		{:else}
-			<h1>No role!</h1>
-		{/if}
-
-		<div class="card-row">
-			{#if showingFlop}
-				<img src={getCardImage(flopCards[0])} alt={flopCards[0]} />
-				<img src={getCardImage(flopCards[1])} alt={flopCards[1]} />
-				<img src={getCardImage(flopCards[2])} alt={flopCards[2]} />
-			{/if}
-			{#if showingTurn}
-				<img src={getCardImage(turnCard)} alt={turnCard} />
-			{/if}
-			{#if showingRiver}
-				<img src={getCardImage(riverCard)} alt={riverCard} />
+		<!-- Opponent Section -->
+		<div class="opponent-section">
+			{#if g.role == 'player1'}
+				<h2>Opponent</h2>
+				<h2>{opponentHandString} {formatPercentage(100 - winPercentage)}</h2>
+				<div class="card-row">
+					<img src={getCardImage(g.player2Hand[0])} alt={g.player2Hand[0]} />
+					<img src={getCardImage(g.player2Hand[1])} alt={g.player2Hand[1]} />
+				</div>
+			{:else if g.role == 'player2'}
+				<h2>Opponent</h2>
+				<h2>{opponentHandString} {formatPercentage(100 - winPercentage)}</h2>
+				<div class="card-row">
+					<img src={getCardImage(g.player1Hand[0])} alt={g.player1Hand[0]} />
+					<img src={getCardImage(g.player1Hand[1])} alt={g.player1Hand[1]} />
+				</div>
+			{:else}
+				<h1>No role!</h1>
 			{/if}
 		</div>
-		{#if g.role == 'player1'}
-			<h2>Your hand: {g.player1Hand.join(', ')}</h2>
-			<h2>{playerHandString} {formatPercentage(winPercentage)}</h2>
 
+		<!-- Community Cards Section -->
+		<div class="community-section">
 			<div class="card-row">
-				<img src={getCardImage(g.player1Hand[0])} alt={g.player1Hand[0]} />
-				<img src={getCardImage(g.player1Hand[1])} alt={g.player1Hand[1]} />
+				{#if showingFlop}
+					<img src={getCardImage(flopCards[0])} alt={flopCards[0]} />
+					<img src={getCardImage(flopCards[1])} alt={flopCards[1]} />
+					<img src={getCardImage(flopCards[2])} alt={flopCards[2]} />
+				{/if}
+				{#if showingTurn}
+					<img src={getCardImage(turnCard)} alt={turnCard} />
+				{/if}
+				{#if showingRiver}
+					<img src={getCardImage(riverCard)} alt={riverCard} />
+				{/if}
 			</div>
-		{:else if g.role == 'player2'}
-			<h2>Your hand: {g.player2Hand.join(', ')}</h2>
-			<h2>{playerHandString} {formatPercentage(winPercentage)}</h2>
-			<div class="card-row">
-				<img src={getCardImage(g.player2Hand[0])} alt={g.player2Hand[0]} />
-				<img src={getCardImage(g.player2Hand[1])} alt={g.player2Hand[1]} />
-			</div>
-		{:else}
-			<h1>No role!</h1>
-		{/if}
+		</div>
+
+		<!-- Player's Section -->
+		<div class="player-section">
+			{#if g.role == 'player1'}
+				<h2>Your hand: {g.player1Hand.join(', ')}</h2>
+				<h2>{playerHandString} {formatPercentage(winPercentage)}</h2>
+
+				<div class="card-row">
+					<img src={getCardImage(g.player1Hand[0])} alt={g.player1Hand[0]} />
+					<img src={getCardImage(g.player1Hand[1])} alt={g.player1Hand[1]} />
+				</div>
+			{:else if g.role == 'player2'}
+				<h2>Your hand: {g.player2Hand.join(', ')}</h2>
+				<h2>{playerHandString} {formatPercentage(winPercentage)}</h2>
+				<div class="card-row">
+					<img src={getCardImage(g.player2Hand[0])} alt={g.player2Hand[0]} />
+					<img src={getCardImage(g.player2Hand[1])} alt={g.player2Hand[1]} />
+				</div>
+			{:else}
+				<h1>No role!</h1>
+			{/if}
+		</div>
 
 		{#if showingRiver}
-			<h2>Result: {resultString}</h2>
+			<div class="result-section">
+				<h2>Result: {resultString}</h2>
+			</div>
 		{/if}
 	{/if}
 </div>
@@ -212,21 +224,58 @@
 	.center-container {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
 		align-items: center;
+		gap: 20px;
 		height: 100vh;
+		padding: 20px;
+		box-sizing: border-box;
+	}
+
+	/* General player section styling */
+	.player-section {
+		width: 100%;
+		text-align: center;
+		margin-bottom: 20px;
+	}
+
+	/* Opponent and your sections distinction */
+	.opponent-section {
+		border-bottom: 2px solid #ccc;
+		padding-bottom: 20px;
 	}
 
 	/* Row container for cards */
 	.card-row {
 		display: flex;
 		justify-content: center;
-		margin-bottom: 10px;
+		margin-top: 10px;
 	}
 
+	/* Community cards styling */
+	.community-section {
+		width: 100%;
+		text-align: center;
+	}
+
+	/* Result section */
+	.result-section {
+		margin-top: 20px;
+		font-size: 1.5em;
+		font-weight: bold;
+		color: #3b3b3b;
+	}
+
+	/* Card image styling */
 	img {
 		width: 100px;
 		height: 150px;
 		margin: 10px;
+	}
+
+	/* Hand strings */
+	h2 {
+		font-size: 1.5em;
+		margin: 5px 0;
+		color: #555;
 	}
 </style>

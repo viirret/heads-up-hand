@@ -16,8 +16,10 @@ export function getOdds(
 	// Generate all combinations of remaining cards
 	const allCombinations = getAllCombinations(remainingDeck, cardsNeeded);
 
-	// Limit to the first 1000 combinations
-	const combinationsToProcess = allCombinations.slice(0, combinationAmount);
+	// Limit to the first 1000 combinations with random order.
+	const combinationsToProcess = allCombinations
+		.sort(() => 0.5 - Math.random())
+		.slice(0, combinationAmount);
 
 	let wins = 0;
 	let ties = 0;

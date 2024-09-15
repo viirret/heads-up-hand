@@ -4,7 +4,9 @@
 		dealOffsuitHand,
 		dealPairedHand,
 		dealRandomAmount,
+		dealStrongHand,
 		dealSuitedHand,
+		dealWeakHand,
 		verifyUniqueness,
 		type DeckType
 	} from '$lib/deck';
@@ -24,22 +26,17 @@
 
 	// Input field value.
 	enum Choice {
-		random = 'RANDOM',
-		weak = 'WEAK',
-		strong = 'STRONG',
-		suited = 'SUITED',
-		offsuit = 'OFFSUIT',
-		pair = 'PAIR',
-		custom = 'CUSTOM'
+		random = 'Random',
+		weak = 'Weak',
+		strong = 'Strong',
+		suited = 'Suited',
+		offsuit = 'Offsuit',
+		pair = 'Pair'
 	}
 
 	// Input field choices.
 	let player1Choice = Choice.random;
 	let player2Choice = Choice.random;
-
-	// Store the custom input if "Custom" is selected
-	let player1CustomInput = '';
-	let player2CustomInput = '';
 
 	let handsCreated = false;
 
@@ -66,52 +63,32 @@
 		ownLink = createLink(g);
 	}
 
+	// Create player cards based on choice.
+	function dealPlayerCardsFromChoice(choice: Choice): string[] {
+		switch (choice) {
+			case Choice.random:
+				return dealRandomAmount(2);
+			case Choice.weak:
+				return dealWeakHand();
+			case Choice.strong:
+				return dealStrongHand();
+			case Choice.suited:
+				return dealSuitedHand();
+			case Choice.offsuit:
+				return dealOffsuitHand();
+			case Choice.pair:
+				return dealPairedHand();
+			default:
+				return dealRandomAmount(2); // Default case if no match
+		}
+	}
+
 	// Create hand based on user choices.
 	function createHand() {
-		let playerHand: string[] = [];
-		let opponentHand: string[] = [];
-		switch (player1Choice) {
-			case Choice.random:
-				playerHand = dealRandomAmount(2);
-				break;
-			case Choice.weak:
-				break;
-			case Choice.strong:
-				break;
-			case Choice.suited:
-				playerHand = dealSuitedHand();
-				break;
-			case Choice.offsuit:
-				playerHand = dealOffsuitHand();
-			case Choice.pair:
-				playerHand = dealPairedHand();
-				break;
-			case Choice.custom:
-				break;
-		}
-
-		switch (player2Choice) {
-			case Choice.random:
-				opponentHand = dealRandomAmount(2);
-				break;
-			case Choice.weak:
-				break;
-			case Choice.strong:
-				break;
-			case Choice.suited:
-				opponentHand = dealSuitedHand();
-				break;
-			case Choice.offsuit:
-				opponentHand = dealOffsuitHand();
-				break;
-			case Choice.pair:
-				opponentHand = dealPairedHand();
-				break;
-			case Choice.custom:
-				break;
-		}
-
+		const playerHand = dealPlayerCardsFromChoice(player1Choice);
+		const opponentHand = dealPlayerCardsFromChoice(player2Choice);
 		const communityCards = dealRandomAmount(5);
+
 		if (verifyUniqueness(playerHand, opponentHand, communityCards)) {
 			const deck: DeckType = {
 				player1Hand: playerHand,
@@ -137,31 +114,19 @@
 
 <div class="container">
 	<!-- Input fields for Player 1 and Player 2 choices -->
-	<p>Select Player 1's Hand Strength:</p>
+	<p>Select Player 1's Hand:</p>
 	<select bind:value={player1Choice} on:change={() => logChoice('Player 1', player1Choice)}>
 		{#each Object.values(Choice) as choice}
 			<option value={choice}>{choice}</option>
 		{/each}
 	</select>
 
-	<!-- If Player 1 selects "Custom", show a text input for custom input -->
-	{#if player1Choice === Choice.custom}
-		<p>Enter custom hand strength for Player 1:</p>
-		<input type="text" bind:value={player1CustomInput} placeholder="Enter custom hand strength" />
-	{/if}
-
-	<p>Select Player 2's Hand Strength:</p>
+	<p>Select Player 2's Hand:</p>
 	<select bind:value={player2Choice} on:change={() => logChoice('Player 2', player2Choice)}>
 		{#each Object.values(Choice) as choice}
 			<option value={choice}>{choice}</option>
 		{/each}
 	</select>
-
-	<!-- If Player 2 selects "Custom", show a text input for custom input -->
-	{#if player2Choice === Choice.custom}
-		<p>Enter custom hand strength for Player 2:</p>
-		<input type="text" bind:value={player2CustomInput} placeholder="Enter custom hand strength" />
-	{/if}
 
 	<br />
 	<button on:click={() => createHand()}>Create hand!</button>
@@ -170,7 +135,6 @@
 		{#if g.player1Hand.length && g.player2Hand.length && g.communityCards.length}
 			<p>Share this link with Player 2:</p>
 			<input readonly value={shareableLink} />
-			<p>Check hand</p>
 			<button on:click={() => goto(ownLink)}>Go to hand!</button>
 		{/if}
 	{/if}
@@ -180,12 +144,11 @@
 	p {
 		font-family: Arial, sans-serif;
 		font-size: 1rem;
-		color: #333;
+		color: #555;
 		margin-bottom: 8px;
 	}
 
 	select,
-	input[type='text'],
 	input[readonly] {
 		width: 100%;
 		padding: 8px;
@@ -208,11 +171,6 @@
 
 	button:hover {
 		background-color: #45a049;
-	}
-
-	input[type='text'] {
-		border: 1px solid #ddd;
-		box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
 	}
 
 	input[readonly] {

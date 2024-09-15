@@ -45,7 +45,15 @@
 		const gameDataString = JSON.stringify(gameData);
 		const hash = createHash(gameDataString);
 		localStorage.setItem(`game-${hash}`, gameDataString);
-		return `${window.location.origin}/game?hash=${hash}`;
+
+		// Local
+		if (window.location.pathname === '/') {
+			return `${window.location.origin}/game?hash=${hash}`;
+
+			// Deployment
+		} else {
+			return `${window.location.pathname}/game?hash=${hash}`;
+		}
 	}
 
 	// Initialize page components.

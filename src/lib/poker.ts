@@ -1,3 +1,142 @@
+// Extract suit from a card (e.g., "2-Hearts" -> "Hearts")
+export function extractSuit(card: string): string {
+	return card.split('-')[1];
+}
+
+// Extract rank from a card (e.g., "2-Hearts" -> "2")
+export function extractRank(card: string): string {
+	return card.split('-')[0];
+}
+
+// Convert card rank to numeric value (e.g., "A" -> 14, "K" -> 13, etc.)
+export function rankValue(rank: string): number {
+	if (rank === 'A') return 14;
+	else if (rank === 'K') return 13;
+	else if (rank === 'Q') return 12;
+	else if (rank === 'J') return 11;
+	else if (rank === 'T') return 10;
+	else return parseInt(rank, 10); // For numeric values like '2', '9', etc.
+}
+
+export enum HandType {
+	royal_flush = 'Royal flush',
+	straight_flush = 'Straight flush',
+	four_of_a_kind = 'Four of a kind',
+	full_house = 'Full house',
+	flush = 'Flush',
+	straight = 'Straight',
+	three_of_a_kind = 'Three of a kind',
+	two_pair = 'Two pair',
+	pair = 'One pair',
+	high_card = 'High card'
+}
+
+export type Hand = {
+	type: HandType;
+	order: (typeof handOrder)[HandType];
+	hand: string[];
+};
+
+export enum HandResult {
+	victory = 'VICTORY',
+	loss = 'LOSS',
+	split = 'SPLIT',
+	error = 'ERROR'
+}
+
+const handOrder = {
+	[HandType.royal_flush]: 1,
+	[HandType.straight_flush]: 2,
+	[HandType.four_of_a_kind]: 3,
+	[HandType.full_house]: 4,
+	[HandType.flush]: 5,
+	[HandType.straight]: 6,
+	[HandType.three_of_a_kind]: 7,
+	[HandType.two_pair]: 8,
+	[HandType.pair]: 9,
+	[HandType.high_card]: 10
+};
+
+export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {
+	if (ownHand.order < opponentHand.order) {
+		return HandResult.victory;
+	} else if (ownHand.order > opponentHand.order) {
+		return HandResult.loss;
+	} else if (ownHand.order == opponentHand.order) {
+		return compareSameStrenght(ownHand, opponentHand);
+	} else {
+		return HandResult.error;
+	}
+}
+
+export function createHand(ownHand: string[], commonCards: string[]): Hand {
+	if (isRoyalFlush(ownHand, commonCards)) {
+		return {
+			type: HandType.royal_flush,
+			order: handOrder[HandType.royal_flush],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else if (isStraightFlush(ownHand, commonCards)) {
+		return {
+			type: HandType.straight_flush,
+			order: handOrder[HandType.straight_flush],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else if (isFourOfAKind(ownHand, commonCards)) {
+		return {
+			type: HandType.four_of_a_kind,
+			order: handOrder[HandType.four_of_a_kind],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else if (isFullHouse(ownHand, commonCards)) {
+		return {
+			type: HandType.full_house,
+			order: handOrder[HandType.full_house],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else if (isFlush(ownHand, commonCards)) {
+		return {
+			type: HandType.flush,
+			order: handOrder[HandType.flush],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else if (isStraight(ownHand, commonCards)) {
+		return {
+			type: HandType.straight,
+			order: handOrder[HandType.straight],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else if (isThreeOfAKind(ownHand, commonCards)) {
+		return {
+			type: HandType.three_of_a_kind,
+			order: handOrder[HandType.three_of_a_kind],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else if (isTwoPair(ownHand, commonCards)) {
+		return {
+			type: HandType.two_pair,
+			order: handOrder[HandType.two_pair],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else if (isPair(ownHand, commonCards)) {
+		return {
+			type: HandType.pair,
+			order: handOrder[HandType.pair],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	} else {
+		return {
+			type: HandType.high_card,
+			order: handOrder[HandType.high_card],
+			hand: combineReadyHand(ownHand, commonCards)
+		};
+	}
+}
+
+function combineReadyHand(ownHand: string[], commonCard: string[]): string[] {
+	return [...ownHand, ...commonCard];
+}
+
 // Count occurrences of each rank
 function countRanks(ranks: string[]): Record<string, number> {
 	return ranks.reduce(
@@ -18,26 +157,6 @@ function countSuits(suits: string[]): Record<string, number> {
 		},
 		{} as Record<string, number>
 	);
-}
-
-// Extract suit from a card (e.g., "2-Hearts" -> "Hearts")
-function extractSuit(card: string): string {
-	return card.split('-')[1];
-}
-
-// Extract rank from a card (e.g., "2-Hearts" -> "2")
-function extractRank(card: string): string {
-	return card.split('-')[0];
-}
-
-// Convert card rank to numeric value (e.g., "A" -> 14, "K" -> 13, etc.)
-function rankValue(rank: string): number {
-	if (rank === 'A') return 14;
-	else if (rank === 'K') return 13;
-	else if (rank === 'Q') return 12;
-	else if (rank === 'J') return 11;
-	else if (rank === 'T') return 10;
-	else return parseInt(rank, 10); // For numeric values like '2', '9', etc.
 }
 
 // Checking if Royal Flush cards are indeed royal.
@@ -143,113 +262,6 @@ function isPair(ownHand: string[], commonCards: string[]): boolean {
 	return Object.values(rankCount).some((count) => count === 2);
 }
 
-function combineReadyHand(ownHand: string[], commonCard: string[]): string[] {
-	return [ownHand[0], ownHand[1], commonCard[0], commonCard[1], commonCard[2]];
-}
-
-enum HandType {
-	royal_flush = 'Royal flush',
-	straight_flush = 'Straight flush',
-	four_of_a_kind = 'Four of a kind',
-	full_house = 'Full house',
-	flush = 'Flush',
-	straight = 'Straight',
-	three_of_a_kind = 'Three of a kind',
-	two_pair = 'Two pair',
-	pair = 'One pair',
-	high_card = 'High card'
-}
-
-const handOrder = {
-	[HandType.royal_flush]: 1,
-	[HandType.straight_flush]: 2,
-	[HandType.four_of_a_kind]: 3,
-	[HandType.full_house]: 4,
-	[HandType.flush]: 5,
-	[HandType.straight]: 6,
-	[HandType.three_of_a_kind]: 7,
-	[HandType.two_pair]: 8,
-	[HandType.pair]: 9,
-	[HandType.high_card]: 10
-};
-
-export type Hand = {
-	type: HandType;
-	strenght: (typeof handOrder)[HandType];
-	hand: string[];
-};
-
-export function createHand(ownHand: string[], commonCards: string[]): Hand {
-	if (isRoyalFlush(ownHand, commonCards)) {
-		return {
-			type: HandType.royal_flush,
-			strenght: handOrder[HandType.royal_flush],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else if (isStraightFlush(ownHand, commonCards)) {
-		return {
-			type: HandType.straight_flush,
-			strenght: handOrder[HandType.straight_flush],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else if (isFourOfAKind(ownHand, commonCards)) {
-		return {
-			type: HandType.four_of_a_kind,
-			strenght: handOrder[HandType.four_of_a_kind],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else if (isFullHouse(ownHand, commonCards)) {
-		return {
-			type: HandType.full_house,
-			strenght: handOrder[HandType.full_house],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else if (isFlush(ownHand, commonCards)) {
-		return {
-			type: HandType.flush,
-			strenght: handOrder[HandType.flush],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else if (isStraight(ownHand, commonCards)) {
-		return {
-			type: HandType.straight,
-			strenght: handOrder[HandType.straight],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else if (isThreeOfAKind(ownHand, commonCards)) {
-		return {
-			type: HandType.three_of_a_kind,
-			strenght: handOrder[HandType.three_of_a_kind],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else if (isTwoPair(ownHand, commonCards)) {
-		return {
-			type: HandType.two_pair,
-			strenght: handOrder[HandType.two_pair],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else if (isPair(ownHand, commonCards)) {
-		return {
-			type: HandType.pair,
-			strenght: handOrder[HandType.pair],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	} else {
-		return {
-			type: HandType.high_card,
-			strenght: handOrder[HandType.high_card],
-			hand: combineReadyHand(ownHand, commonCards)
-		};
-	}
-}
-
-enum HandResult {
-	victory = 'VICTORY',
-	loss = 'LOSS',
-	split = 'SPLIT',
-	error = 'ERROR'
-}
-
 function getHighestCard(hand: string[]): number {
 	const ranks = hand.map((card) => rankValue(extractRank(card)));
 	return Math.max(...ranks);
@@ -337,7 +349,7 @@ function compareHighCards(ownHand: string[], opponentHand: string[]): HandResult
 }
 
 function compareSameStrenght(ownHand: Hand, opponentHand: Hand): HandResult {
-	if (ownHand.strenght != opponentHand.strenght) {
+	if (ownHand.order != opponentHand.order) {
 		console.error('Expecting same strenght comparison!');
 		return HandResult.error;
 	}
@@ -407,43 +419,4 @@ function compareSameStrenght(ownHand: Hand, opponentHand: Hand): HandResult {
 	} else {
 		return compareKickers(ownHand.hand, opponentHand.hand);
 	}
-}
-
-export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {
-	if (ownHand.strenght < opponentHand.strenght) {
-		return HandResult.victory;
-	} else if (ownHand.strenght > opponentHand.strenght) {
-		return HandResult.loss;
-	} else if (ownHand.strenght == opponentHand.strenght) {
-		return compareSameStrenght(ownHand, opponentHand);
-	} else {
-		return HandResult.error;
-	}
-}
-
-export function getCardImage(card: string): string {
-	const rank = extractRank(card);
-	const suit = extractSuit(card);
-	const rankStrength = rankValue(rank);
-
-	let cardPath = '/cards/English_pattern_';
-
-	if (rankStrength < 10) {
-		cardPath += rank;
-	} else if (rankStrength == 10) {
-		cardPath += "10";
-	} else if (rankStrength === 11) {
-		cardPath += 'jack';
-	} else if (rankStrength === 12) {
-		cardPath += 'queen';
-	} else if (rankStrength === 13) {
-		cardPath += 'king';
-	} else if (rankStrength === 14) {
-		cardPath += 'ace';
-	} else {
-		console.error('Undefined card strenght');
-	}
-
-	cardPath += '_of_' + suit + '.svg';
-	return cardPath;
 }

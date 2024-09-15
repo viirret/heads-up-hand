@@ -1,5 +1,6 @@
 import { extractRank, extractSuit, rankValue } from '$lib/poker';
 
+// Get file path for a specific card.
 export function getCardImage(card: string): string {
 	const rank = extractRank(card);
 	const suit = extractSuit(card);

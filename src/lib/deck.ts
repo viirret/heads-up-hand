@@ -1,3 +1,6 @@
+import { extractSuit, countSuits, extractRank } from '$lib/poker';
+
+// Create a deck of all cards.
 export function createDeck(): string[] {
 	const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
 
@@ -14,6 +17,77 @@ export function createDeck(): string[] {
 	return deck;
 }
 
+// This is like a "ready deck",
+// we are only using these cards of the full deck.
+export type DeckType = {
+	player1Hand: string[];
+	player2Hand: string[];
+	communityCards: string[];
+};
+
+// Deal random cards for certain amount
+export function dealRandomAmount(amount: number): string[] {
+	let randomDeck = shuffleDeck(createDeck());
+	return randomDeck.slice(0, amount);
+}
+
+// Deal two cards that are suited.
+export function dealSuitedHand(): string[] {
+	let cards: string[];
+	let suits: string[];
+
+	// Keep dealing until a suited hand is found
+	do {
+		cards = dealRandomAmount(2);
+		suits = cards.map((card) => extractSuit(card));
+	} while (suits[0] !== suits[1]);
+
+	return cards;
+}
+
+// Deal two cards that are offsuit.
+export function dealOffsuitHand(): string[] {
+	let cards: string[];
+	let suits: string[];
+
+	// Keep dealing until a offsuite hand is found
+	do {
+		cards = dealRandomAmount(2);
+		suits = cards.map((card) => extractSuit(card));
+	} while (suits[0] === suits[1]);
+
+	return cards;
+}
+
+// Deal two cards that form a pair.
+export function dealPairedHand(): string[] {
+	let deck = shuffleDeck(createDeck());
+
+	// Extract only the ranks from the deck
+	const ranks = deck.map((card) => extractRank(card));
+
+	// Find the first rank that appears twice
+	const pairRank = ranks.find((rank, index) => ranks.indexOf(rank) !== index);
+
+	// Find the first two cards in the deck with that rank
+	const pair = deck.filter((card) => extractRank(card) === pairRank).slice(0, 2);
+
+	return pair;
+}
+
+// Check if player cards, opponent cards or community cards contain duplicates.
+export function verifyUniqueness(
+	hand1: string[],
+	hand2: string[],
+	communityCards: string[]
+): boolean {
+	return (
+		hand1.every((card) => !hand2.includes(card)) &&
+		hand1.every((card) => !communityCards.includes(card)) &&
+		hand2.every((card) => !communityCards.includes(card))
+	);
+}
+
 // Fisher-Yates shuffle algorithm
 function shuffleDeck(deck: string[]): string[] {
 	for (let i = deck.length - 1; i > 0; i--) {
@@ -21,23 +95,4 @@ function shuffleDeck(deck: string[]): string[] {
 		[deck[i], deck[j]] = [deck[j], deck[i]]; // Swap cards
 	}
 	return deck;
-}
-
-export function dealGame(): {
-	player1Hand: string[];
-	player2Hand: string[];
-	commonCards: string[];
-} {
-	let deck = shuffleDeck(createDeck());
-
-	// Deal two cards for Player 1
-	const player1Hand = [deck[0], deck[1]];
-
-	// Deal two cards for Player 2
-	const player2Hand = [deck[2], deck[3]];
-
-	// Deal five common cards
-	const commonCards = [deck[4], deck[5], deck[6], deck[7], deck[8]];
-
-	return { player1Hand, player2Hand, commonCards };
 }

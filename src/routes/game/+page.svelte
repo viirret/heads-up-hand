@@ -8,7 +8,7 @@
 	let g: GameData = {
 		player1Hand: [],
 		player2Hand: [],
-		commonCards: [],
+		communityCards: [],
 		role: undefined
 	};
 
@@ -45,8 +45,8 @@
 		return percentage.toFixed(2) + '%';
 	}
 
-	function updateWinner(ownHand: Hand, opponentHand: Hand, commonCards: string[]) {
-		if (commonCards.length === 5) {
+	function updateWinner(ownHand: Hand, opponentHand: Hand, communityCards: string[]) {
+		if (communityCards.length === 5) {
 			const res = compareHands(ownHand, opponentHand);
 			switch (res) {
 				case HandResult.victory:
@@ -69,21 +69,21 @@
 	}
 
 	// Function to update the hand types
-	function updateHandTypes(commonCards: string[], role: Role) {
+	function updateHandTypes(communityCards: string[], role: Role) {
 		if (role === 'player1') {
-			playerHand = createHand(g.player1Hand, commonCards);
+			playerHand = createHand(g.player1Hand, communityCards);
 			playerHandString = playerHand.type.toString();
-			opponentHand = createHand(g.player2Hand, commonCards);
+			opponentHand = createHand(g.player2Hand, communityCards);
 			opponentHandString = opponentHand.type.toString();
 		} else if (role === 'player2') {
-			playerHand = createHand(g.player2Hand, commonCards);
+			playerHand = createHand(g.player2Hand, communityCards);
 			playerHandString = playerHand.type.toString();
-			opponentHand = createHand(g.player1Hand, commonCards);
+			opponentHand = createHand(g.player1Hand, communityCards);
 			opponentHandString = opponentHand.type.toString();
 		} else {
 			console.error('Undefined role!');
 		}
-		updateWinner(playerHand, opponentHand, commonCards);
+		updateWinner(playerHand, opponentHand, communityCards);
 	}
 
 	function updateOdds(communityCards: string[], combinations: number) {
@@ -103,22 +103,22 @@
 
 		// Reveal the flop (first 3 cards)
 		await delay(1000);
-		flopCards = g.commonCards.slice(0, 3);
+		flopCards = g.communityCards.slice(0, 3);
 		updateHandTypes(flopCards, g.role);
 		updateOdds(flopCards, 1035);
 		showingFlop = true;
 
 		// Reveal the turn (4th card)
 		await delay(1000);
-		turnCard = g.commonCards[3];
-		updateHandTypes(g.commonCards.slice(0, 4), g.role);
-		updateOdds(g.commonCards.slice(0, 4), 45);
+		turnCard = g.communityCards[3];
+		updateHandTypes(g.communityCards.slice(0, 4), g.role);
+		updateOdds(g.communityCards.slice(0, 4), 45);
 		showingTurn = true;
 
 		// Reveal the river (5th card)
 		await delay(1000);
-		riverCard = g.commonCards[4];
-		updateHandTypes(g.commonCards.slice(0, 5), g.role);
+		riverCard = g.communityCards[4];
+		updateHandTypes(g.communityCards.slice(0, 5), g.role);
 		showingRiver = true;
 	}
 
@@ -134,7 +134,7 @@
 					const gameData = JSON.parse(gameDataString);
 					g.player1Hand = gameData.player1Hand;
 					g.player2Hand = gameData.player2Hand;
-					g.commonCards = gameData.commonCards;
+					g.communityCards = gameData.communityCards;
 					g.role = gameData.role;
 					revealCards();
 				} catch (error) {
@@ -150,7 +150,7 @@
 </script>
 
 <div class="center-container">
-	{#if g.player1Hand.length && g.player2Hand.length && g.commonCards.length}
+	{#if g.player1Hand.length && g.player2Hand.length && g.communityCards.length}
 		{#if g.role == 'player1'}
 			<h2>Opponent</h2>
 			<h2>{opponentHandString} {formatPercentage(100 - winPercentage)}</h2>

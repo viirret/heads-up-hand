@@ -18,6 +18,7 @@ export function rankValue(rank: string): number {
 	else return parseInt(rank, 10); // For numeric values like '2', '9', etc.
 }
 
+// The "type" of "class" of a hand.
 export enum HandType {
 	royal_flush = 'Royal flush',
 	straight_flush = 'Straight flush',
@@ -31,12 +32,14 @@ export enum HandType {
 	high_card = 'High card'
 }
 
+// Hand in poker.ts
 export type Hand = {
 	type: HandType;
 	order: (typeof handOrder)[HandType];
 	hand: string[];
 };
 
+// Result of river hand comparison.
 export enum HandResult {
 	victory = 'VICTORY',
 	loss = 'LOSS',
@@ -57,6 +60,7 @@ const handOrder = {
 	[HandType.high_card]: 10
 };
 
+// Compare two hands against each other.
 export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {
 	if (ownHand.order < opponentHand.order) {
 		return HandResult.victory;
@@ -69,76 +73,77 @@ export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {
 	}
 }
 
-export function createHand(ownHand: string[], commonCards: string[]): Hand {
-	if (isRoyalFlush(ownHand, commonCards)) {
+// Get hand "type" from hand.
+export function createHand(ownHand: string[], communityCards: string[]): Hand {
+	if (isRoyalFlush(ownHand, communityCards)) {
 		return {
 			type: HandType.royal_flush,
 			order: handOrder[HandType.royal_flush],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
-	} else if (isStraightFlush(ownHand, commonCards)) {
+	} else if (isStraightFlush(ownHand, communityCards)) {
 		return {
 			type: HandType.straight_flush,
 			order: handOrder[HandType.straight_flush],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
-	} else if (isFourOfAKind(ownHand, commonCards)) {
+	} else if (isFourOfAKind(ownHand, communityCards)) {
 		return {
 			type: HandType.four_of_a_kind,
 			order: handOrder[HandType.four_of_a_kind],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
-	} else if (isFullHouse(ownHand, commonCards)) {
+	} else if (isFullHouse(ownHand, communityCards)) {
 		return {
 			type: HandType.full_house,
 			order: handOrder[HandType.full_house],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
-	} else if (isFlush(ownHand, commonCards)) {
+	} else if (isFlush(ownHand, communityCards)) {
 		return {
 			type: HandType.flush,
 			order: handOrder[HandType.flush],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
-	} else if (isStraight(ownHand, commonCards)) {
+	} else if (isStraight(ownHand, communityCards)) {
 		return {
 			type: HandType.straight,
 			order: handOrder[HandType.straight],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
-	} else if (isThreeOfAKind(ownHand, commonCards)) {
+	} else if (isThreeOfAKind(ownHand, communityCards)) {
 		return {
 			type: HandType.three_of_a_kind,
 			order: handOrder[HandType.three_of_a_kind],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
-	} else if (isTwoPair(ownHand, commonCards)) {
+	} else if (isTwoPair(ownHand, communityCards)) {
 		return {
 			type: HandType.two_pair,
 			order: handOrder[HandType.two_pair],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
-	} else if (isPair(ownHand, commonCards)) {
+	} else if (isPair(ownHand, communityCards)) {
 		return {
 			type: HandType.pair,
 			order: handOrder[HandType.pair],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else {
 		return {
 			type: HandType.high_card,
 			order: handOrder[HandType.high_card],
-			hand: combineReadyHand(ownHand, commonCards)
+			hand: combineReadyHand(ownHand, communityCards)
 		};
 	}
 }
 
-function combineReadyHand(ownHand: string[], commonCard: string[]): string[] {
-	return [...ownHand, ...commonCard];
+function combineReadyHand(ownHand: string[], communityCards: string[]): string[] {
+	return [...ownHand, ...communityCards];
 }
 
 // Count occurrences of each rank
-function countRanks(ranks: string[]): Record<string, number> {
+export function countRanks(ranks: string[]): Record<string, number> {
 	return ranks.reduce(
 		(count, rank) => {
 			count[rank] = (count[rank] || 0) + 1;
@@ -149,7 +154,7 @@ function countRanks(ranks: string[]): Record<string, number> {
 }
 
 // Count occurrences of each suit
-function countSuits(suits: string[]): Record<string, number> {
+export function countSuits(suits: string[]): Record<string, number> {
 	return suits.reduce(
 		(count, suit) => {
 			count[suit] = (count[suit] || 0) + 1;
@@ -160,34 +165,37 @@ function countSuits(suits: string[]): Record<string, number> {
 }
 
 // Checking if Royal Flush cards are indeed royal.
-function isRoyal(ownHand: string[], commonCards: string[]): boolean {
-	const cards = [...commonCards, ...ownHand];
+function isRoyal(ownHand: string[], communityCards: string[]): boolean {
+	const cards = [...communityCards, ...ownHand];
 
 	const royalRanks = ['10', 'J', 'Q', 'K', 'A'];
 	const ranks = cards.map((card) => extractRank(card));
 	return royalRanks.every((rank) => ranks.includes(rank));
 }
 
-function isRoyalFlush(ownHand: string[], commonCards: string[]): boolean {
-	if (isStraightFlush(ownHand, commonCards)) {
-		if (isRoyal(ownHand, commonCards)) {
+// Does the hand form royal flush?
+function isRoyalFlush(ownHand: string[], communityCards: string[]): boolean {
+	if (isStraightFlush(ownHand, communityCards)) {
+		if (isRoyal(ownHand, communityCards)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-function isStraightFlush(ownHand: string[], commonCards: string[]): boolean {
-	if (isFlush(ownHand, commonCards)) {
-		if (isStraight(ownHand, commonCards)) {
+// Does the hand form straight flush?
+function isStraightFlush(ownHand: string[], communityCards: string[]): boolean {
+	if (isFlush(ownHand, communityCards)) {
+		if (isStraight(ownHand, communityCards)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-function isFourOfAKind(ownHand: string[], commonCards: string[]): boolean {
-	const cards = [...commonCards, ...ownHand];
+// Does the hand form quads?
+function isFourOfAKind(ownHand: string[], communityCards: string[]): boolean {
+	const cards = [...communityCards, ...ownHand];
 
 	const ranks = cards.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
@@ -195,8 +203,9 @@ function isFourOfAKind(ownHand: string[], commonCards: string[]): boolean {
 	return Object.values(rankCount).some((count) => count === 4);
 }
 
-function isFullHouse(ownHand: string[], commonCards: string[]): boolean {
-	const cards = [...commonCards, ...ownHand];
+// Does the hand form full house?
+function isFullHouse(ownHand: string[], communityCards: string[]): boolean {
+	const cards = [...communityCards, ...ownHand];
 	const ranks = cards.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
 
@@ -206,8 +215,9 @@ function isFullHouse(ownHand: string[], commonCards: string[]): boolean {
 	return hasThreeOfAKind && hasPair;
 }
 
-function isFlush(ownHand: string[], commonCards: string[]): boolean {
-	const cards = [...commonCards, ...ownHand];
+// Does the hand form flush?
+function isFlush(ownHand: string[], communityCards: string[]): boolean {
+	const cards = [...communityCards, ...ownHand];
 	const suits = cards.map((card) => extractSuit(card));
 	const suitCount = countSuits(suits);
 
@@ -215,8 +225,9 @@ function isFlush(ownHand: string[], commonCards: string[]): boolean {
 	return Object.values(suitCount).some((count) => count >= 5);
 }
 
-function isStraight(ownHand: string[], commonCards: string[]): boolean {
-	const cards = [...commonCards, ...ownHand];
+// Does the hand form straight?
+function isStraight(ownHand: string[], communityCards: string[]): boolean {
+	const cards = [...communityCards, ...ownHand];
 
 	// Extract the rank part from each card and convert it to numeric values
 	const ranks = cards.map((card) => rankValue(extractRank(card)));
@@ -236,16 +247,18 @@ function isStraight(ownHand: string[], commonCards: string[]): boolean {
 	return lowStraight.every((rank) => uniqueRanks.includes(rank));
 }
 
-function isThreeOfAKind(ownHand: string[], commonCards: string[]): boolean {
-	const cards = [...commonCards, ...ownHand];
+// Does the hand form trips?
+function isThreeOfAKind(ownHand: string[], communityCards: string[]): boolean {
+	const cards = [...communityCards, ...ownHand];
 	const ranks = cards.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
 
 	return Object.values(rankCount).some((count) => count === 3);
 }
 
-function isTwoPair(ownHand: string[], commonCards: string[]): boolean {
-	const cards = [...commonCards, ...ownHand];
+// Does the hand form two pair?
+function isTwoPair(ownHand: string[], communityCards: string[]): boolean {
+	const cards = [...communityCards, ...ownHand];
 	const ranks = cards.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
 
@@ -254,19 +267,22 @@ function isTwoPair(ownHand: string[], commonCards: string[]): boolean {
 	return pairs.length === 2;
 }
 
-function isPair(ownHand: string[], commonCards: string[]): boolean {
-	const cards = [...commonCards, ...ownHand];
+// Does the hand form a pair?
+function isPair(ownHand: string[], communityCards: string[]): boolean {
+	const cards = [...communityCards, ...ownHand];
 	const ranks = cards.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
 
 	return Object.values(rankCount).some((count) => count === 2);
 }
 
+// Get the highest rank value in hand.
 function getHighestCard(hand: string[]): number {
 	const ranks = hand.map((card) => rankValue(extractRank(card)));
 	return Math.max(...ranks);
 }
 
+// Compare high cards (with straights).
 function compareHighCard(ownCard: number, opponentCard: number): HandResult {
 	return ownCard > opponentCard
 		? HandResult.victory
@@ -275,6 +291,7 @@ function compareHighCard(ownCard: number, opponentCard: number): HandResult {
 			: HandResult.split;
 }
 
+// Compare hand kickers.
 function compareKickers(ownHand: string[], opponentHand: string[]): HandResult {
 	const ownKickers = ownHand.map((card) => rankValue(extractRank(card))).sort((a, b) => b - a);
 	const opponentKickers = opponentHand
@@ -289,6 +306,7 @@ function compareKickers(ownHand: string[], opponentHand: string[]): HandResult {
 	return HandResult.split;
 }
 
+// Get rank of quads.
 function getFourOfAKind(hand: string[]): number {
 	const ranks = hand.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
@@ -300,6 +318,7 @@ function getFourOfAKind(hand: string[]): number {
 	return -1;
 }
 
+// Get rank of trips.
 function getThreeOfAKind(hand: string[]): number {
 	const ranks = hand.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
@@ -311,6 +330,7 @@ function getThreeOfAKind(hand: string[]): number {
 	return -1;
 }
 
+// Get ranks of two pairs.
 function getTwoPairs(hand: string[]): number[] {
 	const ranks = hand.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
@@ -323,6 +343,7 @@ function getTwoPairs(hand: string[]): number[] {
 	return pairs.sort((a, b) => b - a);
 }
 
+// Get rank of pair.
 function getPair(hand: string[]): number {
 	const ranks = hand.map((card) => extractRank(card));
 	const rankCount = countRanks(ranks);
@@ -334,6 +355,7 @@ function getPair(hand: string[]): number {
 	return -1;
 }
 
+// Compare highest, then the next highest etc. (Compare flushes)
 function compareHighCards(ownHand: string[], opponentHand: string[]): HandResult {
 	const ownRanks = ownHand.map((card) => rankValue(extractRank(card))).sort((a, b) => b - a);
 	const opponentRanks = opponentHand
@@ -348,6 +370,7 @@ function compareHighCards(ownHand: string[], opponentHand: string[]): HandResult
 	return HandResult.split;
 }
 
+// Execute comparison logic between same "type" of hands.
 function compareSameStrenght(ownHand: Hand, opponentHand: Hand): HandResult {
 	if (ownHand.order != opponentHand.order) {
 		console.error('Expecting same strenght comparison!');

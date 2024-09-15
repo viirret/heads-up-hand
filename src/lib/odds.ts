@@ -1,6 +1,7 @@
 import { createDeck } from '$lib/deck';
 import { type Hand, createHand, HandType, compareHands, HandResult } from '$lib/poker';
 
+// Get player odds of winning this hand.
 export function getOdds(
 	ownHand: Hand,
 	opponentHand: Hand,
@@ -53,13 +54,16 @@ export function getOdds(
 	}
 
 	// Calculate the winning percentage
-	const totalCombinations = allCombinations.length;
-	const winPercentage = (wins / totalCombinations) * 100;
-	const tiePercentage = (ties / totalCombinations) * 100;
+	const totalCombinationsProcessed = combinationsToProcess.length;
+	const winPercentage =
+		totalCombinationsProcessed > 0 ? (wins / totalCombinationsProcessed) * 100 : 0;
+	const tiePercentage =
+		totalCombinationsProcessed > 0 ? (ties / totalCombinationsProcessed) * 100 : 0;
 
 	return winPercentage + tiePercentage / 2; // Ties split the percentage
 }
 
+// Normalize odds.
 export function calculateOdds(
 	playerWinPercent: number,
 	opponentWinPercent: number
@@ -103,10 +107,9 @@ function generateRemainingDeck(
 	opponentHand: Hand,
 	communityCards: string[]
 ): string[] {
-	// OwnHand and opponenthand actually both contain community cards, but we take care of it.
 	const deck = createDeck();
 	const usedCards = new Set([
-		...ownHand.hand[0],
+		ownHand.hand[0],
 		ownHand.hand[1],
 		opponentHand.hand[0],
 		opponentHand.hand[1],
@@ -117,6 +120,7 @@ function generateRemainingDeck(
 	return deck.filter((card) => !usedCards.has(card));
 }
 
+// Dirty helper that basically reverses hand order.
 function getStrenghtFromHandType(hand: HandType): number {
 	switch (hand) {
 		case HandType.royal_flush:
@@ -142,6 +146,7 @@ function getStrenghtFromHandType(hand: HandType): number {
 	}
 }
 
+// We are basically checking which "type" the hand hit.
 function evaluateHand(hand: Hand): number {
 	const initialStrenght = getStrenghtFromHandType(hand.type);
 	return initialStrenght;

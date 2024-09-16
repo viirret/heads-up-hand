@@ -25,6 +25,7 @@
 	let riverCard: string = '';
 
 	// What cards to show
+	let showingPreFlop = false;
 	let showingFlop = false;
 	let showingTurn = false;
 	let showingRiver = false;
@@ -52,14 +53,17 @@
 				case HandResult.victory:
 					resultString = 'Winner!';
 					winPercentage = 100;
+					opponentWinPercentage = 0;
 					break;
 				case HandResult.loss:
 					resultString = 'Loser!';
 					winPercentage = 0;
+					opponentWinPercentage = 100;
 					break;
 				case HandResult.split:
 					resultString = 'Split!';
 					winPercentage = 50;
+					opponentWinPercentage = 50;
 					break;
 				case HandResult.error:
 					console.error('HandResult: error');
@@ -87,11 +91,7 @@
 	}
 
 	function updateOdds(communityCards: string[], combinations: number) {
-		winPercentage = getOdds(playerHand, opponentHand, communityCards, combinations);
-		opponentWinPercentage = getOdds(opponentHand, playerHand, communityCards, combinations);
-
-		// Normalize
-		let odds = calculateOdds(winPercentage, opponentWinPercentage);
+		const odds = getOdds(playerHand, opponentHand, communityCards, combinations);
 		winPercentage = odds.playerOdds;
 		opponentWinPercentage = odds.opponentOdds;
 	}
@@ -100,6 +100,7 @@
 		// Reveal own cards
 		updateHandTypes([], g.role);
 		updateOdds([], 10000);
+		showingPreFlop = true;
 
 		// Reveal the flop (first 3 cards)
 		await delay(1000);
@@ -155,14 +156,14 @@
 		<div class="opponent-section">
 			{#if g.role == 'player1'}
 				<h2>Opponent</h2>
-				<h2>{opponentHandString} {formatPercentage(100 - winPercentage)}</h2>
+				<h2>{opponentHandString} {formatPercentage(opponentWinPercentage)}</h2>
 				<div class="card-row">
 					<img src={getCardImage(g.player2Hand[0])} alt={g.player2Hand[0]} />
 					<img src={getCardImage(g.player2Hand[1])} alt={g.player2Hand[1]} />
 				</div>
 			{:else if g.role == 'player2'}
 				<h2>Opponent</h2>
-				<h2>{opponentHandString} {formatPercentage(100 - winPercentage)}</h2>
+				<h2>{opponentHandString} {formatPercentage(opponentWinPercentage)}</h2>
 				<div class="card-row">
 					<img src={getCardImage(g.player1Hand[0])} alt={g.player1Hand[0]} />
 					<img src={getCardImage(g.player1Hand[1])} alt={g.player1Hand[1]} />
@@ -192,7 +193,7 @@
 		<!-- Player's Section -->
 		<div class="player-section">
 			{#if g.role == 'player1'}
-				<h2>Your hand: {g.player1Hand.join(', ')}</h2>
+				<h2>{g.player1Hand.join(', ')}</h2>
 				<h2>{playerHandString} {formatPercentage(winPercentage)}</h2>
 
 				<div class="card-row">
@@ -200,7 +201,7 @@
 					<img src={getCardImage(g.player1Hand[1])} alt={g.player1Hand[1]} />
 				</div>
 			{:else if g.role == 'player2'}
-				<h2>Your hand: {g.player2Hand.join(', ')}</h2>
+				<h2>{g.player2Hand.join(', ')}</h2>
 				<h2>{playerHandString} {formatPercentage(winPercentage)}</h2>
 				<div class="card-row">
 					<img src={getCardImage(g.player2Hand[0])} alt={g.player2Hand[0]} />
@@ -213,9 +214,11 @@
 
 		{#if showingRiver}
 			<div class="result-section">
-				<h2>Result: {resultString}</h2>
+				<h2>{resultString}</h2>
 			</div>
 		{/if}
+	{:else}
+		<h1>Calculating pre-flop odds.</h1>
 	{/if}
 </div>
 
@@ -248,6 +251,7 @@
 	.card-row {
 		display: flex;
 		justify-content: center;
+		flex-wrap: wrap;
 		margin-top: 10px;
 	}
 
@@ -277,5 +281,47 @@
 		font-size: 1.5em;
 		margin: 5px 0;
 		color: #555;
+	}
+
+	h1 {
+		text-align: center;
+		font-size: 1.5em;
+		margin: 5px 0;
+		color: #555;
+	}
+
+	/* Responsive adjustments for smaller screens */
+	@media (max-width: 768px) {
+		/* Decrease card size on mobile */
+		img {
+			width: 70px;
+			height: 105px;
+			margin: 5px;
+		}
+
+		/* Make sure sections are well spaced on smaller devices */
+		.opponent-section,
+		.player-section,
+		.community-section {
+			padding: 10px;
+		}
+	}
+
+	/* Further adjustments for very small screens */
+	@media (max-width: 480px) {
+		.center-container {
+			padding: 10px;
+			gap: 15px;
+		}
+
+		.card-row {
+			justify-content: space-around;
+		}
+
+		img {
+			width: 60px;
+			height: 90px;
+			margin: 3px;
+		}
 	}
 </style>

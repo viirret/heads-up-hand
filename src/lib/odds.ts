@@ -7,7 +7,7 @@ export function getOdds(
 	opponentHand: Hand,
 	communityCards: string[],
 	combinationAmount: number
-): number {
+): { playerOdds: number; opponentOdds: number } {
 	const remainingDeck = generateRemainingDeck(ownHand, opponentHand, communityCards);
 
 	// Determine how many cards are needed to complete the community cards (either 1 or 2)
@@ -16,13 +16,13 @@ export function getOdds(
 	// Generate all combinations of remaining cards
 	const allCombinations = getAllCombinations(remainingDeck, cardsNeeded);
 
-	// Limit to the first 1000 combinations with random order.
+	// Limit to the first `combinationAmount` combinations with random order
 	const combinationsToProcess = allCombinations
 		.sort(() => 0.5 - Math.random())
 		.slice(0, combinationAmount);
 
-	let wins = 0;
-	let ties = 0;
+	let playerWins = 0;
+	let opponentWins = 0;
 
 	// Evaluate each combination of community cards
 	for (const combination of combinationsToProcess) {
@@ -40,29 +40,31 @@ export function getOdds(
 
 		// Compare the two scores
 		if (myScore > opponentScore) {
-			wins++;
+			playerWins++;
 		} else if (myScore === opponentScore) {
 			switch (compareHands(playerHand, oppHand)) {
 				case HandResult.victory:
-					wins++;
+					playerWins++;
 					break;
 				case HandResult.split:
-					ties++;
 					break;
 				case HandResult.loss:
+					opponentWins++;
 					break;
 			}
+		} else {
+			opponentWins++;
 		}
 	}
 
-	// Calculate the winning percentage
-	const totalCombinationsProcessed = combinationsToProcess.length;
-	const winPercentage =
-		totalCombinationsProcessed > 0 ? (wins / totalCombinationsProcessed) * 100 : 0;
-	const tiePercentage =
-		totalCombinationsProcessed > 0 ? (ties / totalCombinationsProcessed) * 100 : 0;
+	const totalCombinations = combinationsToProcess.length;
+	const playerWinPercentage = (playerWins / totalCombinations) * 100;
+	const opponentWinPercentage = (opponentWins / totalCombinations) * 100;
 
-	return winPercentage + tiePercentage / 2; // Ties split the percentage
+	return {
+		playerOdds: playerWinPercentage,
+		opponentOdds: opponentWinPercentage
+	};
 }
 
 // Get the odds from comparing winning percentages.

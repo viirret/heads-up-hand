@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { GameData, Role } from '$lib/gamedata';
 	import { getCardImage } from '$lib/card_image';
-	import { calculateOdds, getOdds } from '$lib/odds';
+	import { getOdds } from '$lib/odds';
 	import { compareHands, createHand, type Hand, HandResult } from '$lib/poker';
 
 	let g: GameData = {

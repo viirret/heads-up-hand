@@ -1,7 +1,7 @@
 import { createDeck } from '$lib/deck';
 import { type Hand, createHand, HandType, compareHands, HandResult } from '$lib/poker';
 
-// Get player odds of winning this hand.
+// Get players odds of winning this hand.
 export function getOdds(
 	ownHand: Hand,
 	opponentHand: Hand,
@@ -65,25 +65,6 @@ export function getOdds(
 		playerOdds: playerWinPercentage,
 		opponentOdds: opponentWinPercentage
 	};
-}
-
-// Get the odds from comparing winning percentages.
-export function calculateOdds(
-	playerWinPercent: number,
-	opponentWinPercent: number
-): { playerOdds: number; opponentOdds: number } {
-	// Total percentage should be 100% ideally, but if it exceeds 100%, normalize it
-	const totalPercent = playerWinPercent + opponentWinPercent;
-
-	// Normalize the percentages
-	const normalizedPlayerPercent = (playerWinPercent / totalPercent) * 100;
-	const normalizedOpponentPercent = (opponentWinPercent / totalPercent) * 100;
-
-	// Calculate the odds
-	const playerOdds = normalizedPlayerPercent;
-	const opponentOdds = normalizedOpponentPercent;
-
-	return { playerOdds, opponentOdds };
 }
 
 // Generate all combinations of 'k' cards from a deck

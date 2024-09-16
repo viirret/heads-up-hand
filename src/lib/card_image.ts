@@ -1,12 +1,19 @@
 import { extractRank, extractSuit, rankValue } from '$lib/poker';
+import process from 'process';
 
 // Get file path for a specific card.
 export function getCardImage(card: string): string {
+	const basePath: string | undefined = process.env.BASE_PATH;
 	const rank = extractRank(card);
 	const suit = extractSuit(card);
 	const rankStrength = rankValue(rank);
 
-	let cardPath = '/cards/English_pattern_';
+	let cardPath = '';
+	if (basePath !== undefined) {
+		cardPath += `${basePath}/static/cards/English_pattern_`;
+	} else {
+		cardPath = `cards/English_pattern_`;
+	}
 
 	if (rankStrength < 10) {
 		cardPath += rank;

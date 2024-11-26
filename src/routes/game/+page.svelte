@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as LZString from 'lz-string';
 	import { onMount } from 'svelte';
 	import type { GameData, Role } from '$lib/gamedata';
 	import { getCardImage } from '$lib/card_image';
@@ -125,14 +126,14 @@
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
-		const hash = urlParams.get('hash');
+		const compressedData = urlParams.get('data');
 
-		if (hash) {
-			const gameDataString = localStorage.getItem(`game-${hash}`);
+		if (compressedData) {
+			const jsonData = LZString.decompressFromEncodedURIComponent(compressedData);
 
-			if (gameDataString) {
+			if (jsonData) {
 				try {
-					const gameData = JSON.parse(gameDataString);
+					const gameData = JSON.parse(jsonData);
 					g.player1Hand = gameData.player1Hand;
 					g.player2Hand = gameData.player2Hand;
 					g.communityCards = gameData.communityCards;
@@ -142,7 +143,7 @@
 					console.error('Error parsing game data:', error);
 				}
 			} else {
-				console.error('Game data not found for hash:', hash);
+				console.error('Game data not found for hash:', jsonData);
 			}
 		} else {
 			console.error('Hash not provided in URL');

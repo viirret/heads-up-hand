@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as LZString from 'lz-string';
 	import { goto } from '$app/navigation';
 	import {
 		dealOffsuitHand,
@@ -10,7 +11,6 @@
 		verifyUniqueness,
 		type DeckType
 	} from '$lib/deck';
-	import { createHash } from '$lib/hash';
 	import type { GameData } from '$lib/gamedata';
 
 	let g: GameData = {
@@ -42,9 +42,8 @@
 
 	// Create link from gamedata.
 	function createLink(gameData: GameData) {
-		const gameDataString = JSON.stringify(gameData);
-		const hash = createHash(gameDataString);
-		localStorage.setItem(`game-${hash}`, gameDataString);
+		const jsonData = JSON.stringify(gameData);
+		const compressedData = LZString.compressToEncodedURIComponent(jsonData);
 		let link = `${window.location.origin}`;
 
 		if (window.location.pathname !== '/') {
@@ -52,7 +51,7 @@
 		} else {
 			link += '/';
 		}
-		link += `game?hash=${hash}`;
+		link += `game?data=${compressedData}`;
 		return link;
 	}
 

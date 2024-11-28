@@ -1,10 +1,10 @@
 <script lang="ts">
-	import * as LZString from 'lz-string';
 	import { onMount } from 'svelte';
 	import type { GameData, Role } from '$lib/gamedata';
 	import { getCardImage } from '$lib/card_image';
 	import { getOdds } from '$lib/odds';
 	import { compareHands, createHand, type Hand, HandResult } from '$lib/poker';
+	import { decompress } from '$lib/compressor';
 
 	let g: GameData = {
 		player1Hand: [],
@@ -127,27 +127,17 @@
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const compressedData = urlParams.get('data');
-
 		if (compressedData) {
-			const jsonData = LZString.decompressFromEncodedURIComponent(compressedData);
-
-			if (jsonData) {
-				try {
-					const gameData = JSON.parse(jsonData);
-					g.player1Hand = gameData.player1Hand;
-					g.player2Hand = gameData.player2Hand;
-					g.communityCards = gameData.communityCards;
-					g.role = gameData.role;
-					revealCards();
-				} catch (error) {
-					console.error('Error parsing game data:', error);
-				}
+			const decompressedData = decompress(compressedData);
+			if (decompressedData) {
+				g = decompressedData;
 			} else {
-				console.error('Game data not found for hash:', jsonData);
+				console.error('Compression failed!');
 			}
 		} else {
-			console.error('Hash not provided in URL');
+			console.error('Invalid url');
 		}
+		revealCards();
 	});
 </script>
 

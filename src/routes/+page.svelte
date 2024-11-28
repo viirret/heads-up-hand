@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as LZString from 'lz-string';
 	import { goto } from '$app/navigation';
 	import {
 		dealOffsuitHand,
@@ -12,6 +11,7 @@
 		type DeckType
 	} from '$lib/deck';
 	import type { GameData } from '$lib/gamedata';
+	import { compress } from '$lib/compressor';
 
 	let g: GameData = {
 		player1Hand: [],
@@ -42,8 +42,7 @@
 
 	// Create link from gamedata.
 	function createLink(gameData: GameData) {
-		const jsonData = JSON.stringify(gameData);
-		const compressedData = LZString.compressToEncodedURIComponent(jsonData);
+		const compressedData = compress(gameData);
 		let link = `${window.location.origin}`;
 
 		if (window.location.pathname !== '/') {

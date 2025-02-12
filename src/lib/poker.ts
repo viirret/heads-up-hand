@@ -1,64 +1,8 @@
-// Extract suit from a card (e.g., "2-Hearts" -> "Hearts")
-export function extractSuit(card: string): string {
-	return card.split('-')[1];
-}
-
-// Extract rank from a card (e.g., "2-Hearts" -> "2")
-export function extractRank(card: string): string {
-	return card.split('-')[0];
-}
-
-// Convert card rank to numeric value (e.g., "A" -> 14, "K" -> 13, etc.)
-export function rankValue(rank: string): number {
-	if (rank === 'A') return 14;
-	else if (rank === 'K') return 13;
-	else if (rank === 'Q') return 12;
-	else if (rank === 'J') return 11;
-	else if (rank === 'T') return 10;
-	else return parseInt(rank, 10); // For numeric values like '2', '9', etc.
-}
-
-// The "type" of "class" of a hand.
-export enum HandType {
-	royal_flush = 'Royal flush',
-	straight_flush = 'Straight flush',
-	four_of_a_kind = 'Four of a kind',
-	full_house = 'Full house',
-	flush = 'Flush',
-	straight = 'Straight',
-	three_of_a_kind = 'Three of a kind',
-	two_pair = 'Two pair',
-	pair = 'One pair',
-	high_card = 'High card'
-}
-
-// Hand in poker.ts
-export type Hand = {
-	type: HandType;
-	order: (typeof handOrder)[HandType];
-	hand: string[];
-};
-
-// Result of river hand comparison.
-export enum HandResult {
-	victory = 'VICTORY',
-	loss = 'LOSS',
-	split = 'SPLIT',
-	error = 'ERROR'
-}
-
-const handOrder = {
-	[HandType.royal_flush]: 1,
-	[HandType.straight_flush]: 2,
-	[HandType.four_of_a_kind]: 3,
-	[HandType.full_house]: 4,
-	[HandType.flush]: 5,
-	[HandType.straight]: 6,
-	[HandType.three_of_a_kind]: 7,
-	[HandType.two_pair]: 8,
-	[HandType.pair]: 9,
-	[HandType.high_card]: 10
-};
+import { extractRank, extractSuit, rankValue } from "$lib/util";
+import { type Hand } from "$lib/types/hand";
+import { HandResult } from "$lib/constants/hand_result";
+import { HandType } from "$lib/constants/hand_type";
+import { HandOrder } from "$lib/constants/hand_order";
 
 // Compare two hands against each other.
 export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {
@@ -71,8 +15,11 @@ export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {
 		return HandResult.victory;
 	} else if (ownHand.order > opponentHand.order) {
 		return HandResult.loss;
+	} else if (ownHand.order === opponentHand.order) {
+		return compareSameStrenght(ownHand, opponentHand);
+	} else {
+		return HandResult.error;
 	}
-	return compareSameStrenght(ownHand, opponentHand);
 }
 
 // Get hand "type" from hand.
@@ -80,61 +27,61 @@ export function createHand(ownHand: string[], communityCards: string[]): Hand {
 	if (isRoyalFlush(ownHand, communityCards)) {
 		return {
 			type: HandType.royal_flush,
-			order: handOrder[HandType.royal_flush],
+			order: HandOrder[HandType.royal_flush],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else if (isStraightFlush(ownHand, communityCards)) {
 		return {
 			type: HandType.straight_flush,
-			order: handOrder[HandType.straight_flush],
+			order: HandOrder[HandType.straight_flush],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else if (isFourOfAKind(ownHand, communityCards)) {
 		return {
 			type: HandType.four_of_a_kind,
-			order: handOrder[HandType.four_of_a_kind],
+			order: HandOrder[HandType.four_of_a_kind],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else if (isFullHouse(ownHand, communityCards)) {
 		return {
 			type: HandType.full_house,
-			order: handOrder[HandType.full_house],
+			order: HandOrder[HandType.full_house],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else if (isFlush(ownHand, communityCards)) {
 		return {
 			type: HandType.flush,
-			order: handOrder[HandType.flush],
+			order: HandOrder[HandType.flush],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else if (isStraight(ownHand, communityCards)) {
 		return {
 			type: HandType.straight,
-			order: handOrder[HandType.straight],
+			order: HandOrder[HandType.straight],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else if (isThreeOfAKind(ownHand, communityCards)) {
 		return {
 			type: HandType.three_of_a_kind,
-			order: handOrder[HandType.three_of_a_kind],
+			order: HandOrder[HandType.three_of_a_kind],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else if (isTwoPair(ownHand, communityCards)) {
 		return {
 			type: HandType.two_pair,
-			order: handOrder[HandType.two_pair],
+			order: HandOrder[HandType.two_pair],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else if (isPair(ownHand, communityCards)) {
 		return {
 			type: HandType.pair,
-			order: handOrder[HandType.pair],
+			order: HandOrder[HandType.pair],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	} else {
 		return {
 			type: HandType.high_card,
-			order: handOrder[HandType.high_card],
+			order: HandOrder[HandType.high_card],
 			hand: combineReadyHand(ownHand, communityCards)
 		};
 	}
@@ -145,7 +92,7 @@ function combineReadyHand(ownHand: string[], communityCards: string[]): string[]
 }
 
 // Count occurrences of each rank
-export function countRanks(ranks: string[]): Record<string, number> {
+function countRanks(ranks: string[]): Record<string, number> {
 	return ranks.reduce(
 		(count, rank) => {
 			count[rank] = (count[rank] || 0) + 1;
@@ -156,7 +103,7 @@ export function countRanks(ranks: string[]): Record<string, number> {
 }
 
 // Count occurrences of each suit
-export function countSuits(suits: string[]): Record<string, number> {
+function countSuits(suits: string[]): Record<string, number> {
 	return suits.reduce(
 		(count, suit) => {
 			count[suit] = (count[suit] || 0) + 1;
@@ -357,8 +304,8 @@ function getPair(hand: string[]): number {
 	return -1;
 }
 
-// Compare highest, then the next highest etc. (Compare flushes)
-function compareHighCards(ownHand: string[], opponentHand: string[]): HandResult {
+// Compare highest, then the next highest etc.
+function compareFlushes(ownHand: string[], opponentHand: string[]): HandResult {
 	const ownRanks = ownHand.map((card) => rankValue(extractRank(card))).sort((a, b) => b - a);
 	const opponentRanks = opponentHand
 		.map((card) => rankValue(extractRank(card)))
@@ -403,11 +350,14 @@ function compareSameStrenght(ownHand: Hand, opponentHand: Hand): HandResult {
 		}
 		const ownPair = getPair(ownHand.hand);
 		const opponentPair = getPair(opponentHand.hand);
+		if (ownPair === opponentPair) {
+			return HandResult.split;
+		}
 		return ownPair > opponentPair ? HandResult.victory : HandResult.loss;
 
 		// Flush: compare the highest card, then the next highest, and so on
 	} else if (ownHand.type === HandType.flush) {
-		return compareHighCards(ownHand.hand, opponentHand.hand);
+		return compareFlushes(ownHand.hand, opponentHand.hand);
 
 		// Three of a kind: compare the three cards, then the kickers
 	} else if (ownHand.type === HandType.three_of_a_kind) {

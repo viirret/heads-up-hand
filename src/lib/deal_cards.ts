@@ -1,30 +1,6 @@
-import { extractSuit, countSuits, extractRank } from '$lib/poker';
 import { shuffle } from '$lib/shuffle';
-
-// Create a deck of all cards.
-export function createDeck(): string[] {
-	const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
-
-	const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
-
-	let deck = [];
-
-	// Create a full deck (52 cards)
-	for (let suit of suits) {
-		for (let value of values) {
-			deck.push(`${value}-${suit}`);
-		}
-	}
-	return deck;
-}
-
-// This is like a "ready deck",
-// we are only using these cards of the full deck anyway.
-export type DeckType = {
-	player1Hand: string[];
-	player2Hand: string[];
-	communityCards: string[];
-};
+import { createDeck } from '$lib/create_deck';
+import { extractRank, extractSuit } from '$lib/util';
 
 // Deal random cards for certain amount
 export function dealRandomAmount(amount: number): string[] {
@@ -159,17 +135,4 @@ export function dealWeakHand(): string[] {
 
 	// Fallback in case no weak hand is found (shouldn't happen)
 	return deck.slice(0, 2);
-}
-
-// Check if player cards, opponent cards or community cards contain duplicates.
-export function verifyUniqueness(
-	hand1: string[],
-	hand2: string[],
-	communityCards: string[]
-): boolean {
-	return (
-		hand1.every((card) => !hand2.includes(card)) &&
-		hand1.every((card) => !communityCards.includes(card)) &&
-		hand2.every((card) => !communityCards.includes(card))
-	);
 }

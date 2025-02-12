@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { type DeckType } from '$lib/types/deck';
 	import {
 		dealOffsuitHand,
 		dealPairedHand,
 		dealRandomAmount,
 		dealStrongHand,
 		dealSuitedHand,
-		dealWeakHand,
-		verifyUniqueness,
-		type DeckType
-	} from '$lib/deck';
-	import type { GameData } from '$lib/gamedata';
+		dealWeakHand
+	} from '$lib/deal_cards';
+	import { verifyUniqueness } from '$lib/verify_uniqueness';
+	import type { GameData } from '$lib/types/game_data';
 	import { compress } from '$lib/compressor';
 
 	let g: GameData = {

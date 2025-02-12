@@ -1,5 +1,7 @@
-import { createDeck } from '$lib/deck';
-import { type Hand, createHand, HandType, compareHands, HandResult } from '$lib/poker';
+import { createDeck } from '$lib/create_deck';
+import { createHand, compareHands } from '$lib/poker';
+import { type Hand } from '$lib/types/hand';
+import { HandResult } from '$lib/constants/hand_result';
 import { shuffle } from '$lib/shuffle';
 
 // Get players odds of winning this hand.

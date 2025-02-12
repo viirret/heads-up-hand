@@ -1,4 +1,4 @@
-export type Role = 'player1' | 'player2' | undefined;
+import { type Role } from "$lib/types/role";
 
 export type GameData = {
 	player1Hand: string[];

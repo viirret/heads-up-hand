@@ -1,4 +1,4 @@
-import { extractRank, extractSuit, rankValue } from '$lib/poker';
+import { extractRank, extractSuit, rankValue } from '$lib/util';
 import process from 'process';
 
 // Get file path for a specific card.

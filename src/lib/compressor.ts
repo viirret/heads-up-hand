@@ -1,7 +1,7 @@
 import * as LZString from 'lz-string';
 
-import { extractRank, extractSuit } from '$lib/poker';
-import type { GameData } from '$lib/gamedata';
+import { extractRank, extractSuit } from '$lib/util';
+import type { GameData } from '$lib/types/game_data';
 
 function compressCard(uncompressedHand: string): string {
 	let compressed = extractRank(uncompressedHand);
@@ -70,16 +70,16 @@ function decompressCard(card: string): string {
 }
 
 function decompressedData(cards: string): GameData | null {
-	const player1 = [decompressCard(cards[0] + cards[1]), decompressCard(cards[2] + cards[3])];
-	const player2 = [decompressCard(cards[4] + cards[5]), decompressCard(cards[6] + cards[7])];
-	const communityCards = [
-		decompressCard(cards[8] + cards[9]),
-		decompressCard(cards[10] + cards[11]),
-		decompressCard(cards[12] + cards[13]),
-		decompressCard(cards[14] + cards[15]),
-		decompressCard(cards[16] + cards[17])
-	];
-	const role = cards[18] == '1' ? 'player1' : cards[18] == '0' ? 'player2' : null;
+	if (cards.length < 19) return null;
+
+	const decompressPair = (index: number) => decompressCard(cards[index] + cards[index + 1]);
+
+	const player1 = [decompressPair(0), decompressPair(2)];
+	const player2 = [decompressPair(4), decompressPair(6)];
+	const communityCards = Array.from({ length: 5 }, (_, i) => decompressPair(8 + i * 2));
+
+	const role = cards[18] === '1' ? 'player1' : cards[18] === '0' ? 'player2' : null;
+
 	if (role == null) {
 		return null;
 	}

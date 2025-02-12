@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { GameData, Role } from '$lib/gamedata';
-	import { getCardImage } from '$lib/card_image';
+	import { type GameData } from '$lib/types/game_data';
+	import { type Role } from '$lib/types/role';
+	import { type Hand } from '$lib/types/hand';
+	import { getCardImage } from '$lib/get_card_image';
 	import { getOdds } from '$lib/odds';
-	import { compareHands, createHand, type Hand, HandResult } from '$lib/poker';
+	import { compareHands, createHand } from '$lib/poker';
 	import { decompress } from '$lib/compressor';
+	import { HandResult } from '$lib/constants/hand_result';
 
 	let g: GameData = {
 		player1Hand: [],

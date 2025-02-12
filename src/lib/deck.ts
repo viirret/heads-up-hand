@@ -1,4 +1,5 @@
 import { extractSuit, countSuits, extractRank } from '$lib/poker';
+import { shuffle } from '$lib/shuffle';
 
 // Create a deck of all cards.
 export function createDeck(): string[] {
@@ -27,7 +28,7 @@ export type DeckType = {
 
 // Deal random cards for certain amount
 export function dealRandomAmount(amount: number): string[] {
-	let randomDeck = shuffleDeck(createDeck());
+	let randomDeck = shuffle(createDeck());
 	return randomDeck.slice(0, amount);
 }
 
@@ -61,7 +62,7 @@ export function dealOffsuitHand(): string[] {
 
 // Deal two cards that form a pair.
 export function dealPairedHand(): string[] {
-	let deck = shuffleDeck(createDeck());
+	let deck = shuffle(createDeck());
 
 	// Extract only the ranks from the deck
 	const ranks = deck.map((card) => extractRank(card));
@@ -77,7 +78,7 @@ export function dealPairedHand(): string[] {
 
 // Deal a hand that is either pocket pair or strong suited connector.
 export function dealStrongHand(): string[] {
-	let deck = shuffleDeck(createDeck());
+	let deck = shuffle(createDeck());
 
 	const strongSuitedConnectors = [
 		['T', 'J'],
@@ -122,7 +123,7 @@ export function dealStrongHand(): string[] {
 
 // Deal a hand that is not pocket pair or suited or any connector.
 export function dealWeakHand(): string[] {
-	let deck = shuffleDeck(createDeck());
+	let deck = shuffle(createDeck());
 
 	// Function to check if two ranks are consecutive
 	function areRanksConsecutive(rank1: string, rank2: string): boolean {
@@ -171,13 +172,4 @@ export function verifyUniqueness(
 		hand1.every((card) => !communityCards.includes(card)) &&
 		hand2.every((card) => !communityCards.includes(card))
 	);
-}
-
-// Fisher-Yates shuffle algorithm
-function shuffleDeck(deck: string[]): string[] {
-	for (let i = deck.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[deck[i], deck[j]] = [deck[j], deck[i]]; // Swap cards
-	}
-	return deck;
 }

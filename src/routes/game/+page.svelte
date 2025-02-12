@@ -107,14 +107,14 @@
 		await delay(1000);
 		flopCards = g.communityCards.slice(0, 3);
 		updateHandTypes(flopCards, g.role);
-		updateOdds(flopCards, 1035);
+		updateOdds(flopCards, 990);
 		showingFlop = true;
 
 		// Reveal the turn (4th card)
 		await delay(1000);
 		turnCard = g.communityCards[3];
 		updateHandTypes(g.communityCards.slice(0, 4), g.role);
-		updateOdds(g.communityCards.slice(0, 4), 45);
+		updateOdds(g.communityCards.slice(0, 4), 44);
 		showingTurn = true;
 
 		// Reveal the river (5th card)

@@ -1,5 +1,6 @@
 import { createDeck } from '$lib/deck';
 import { type Hand, createHand, HandType, compareHands, HandResult } from '$lib/poker';
+import { shuffle } from '$lib/shuffle';
 
 // Get players odds of winning this hand.
 export function getOdds(
@@ -14,19 +15,25 @@ export function getOdds(
 	const cardsNeeded = 5 - communityCards.length;
 
 	// Generate all combinations of remaining cards
-	const allCombinations = getAllCombinations(remainingDeck, cardsNeeded);
-
-	// Limit to the first `combinationAmount` combinations with random order
-	const combinationsToProcess = allCombinations
-		.sort(() => 0.5 - Math.random())
-		.slice(0, combinationAmount);
+	const shuffledCombinations = shuffle(getAllCombinations(remainingDeck, cardsNeeded)).slice(
+		0,
+		combinationAmount
+	);
 
 	let playerWins = 0;
 	let opponentWins = 0;
+	let splits = 0;
+	let errors = 0;
 
 	// Evaluate each combination of community cards
-	for (const combination of combinationsToProcess) {
+	for (const combination of shuffledCombinations) {
 		const finalCommunityCards = [...communityCards, ...combination];
+
+		if (finalCommunityCards.length !== 5) {
+			console.error('Invalid community card count:', finalCommunityCards);
+			errors++;
+			continue;
+		}
 
 		// Evaluate both hands
 		const myFinalHand = [...ownHand.hand, ...finalCommunityCards];
@@ -35,31 +42,29 @@ export function getOdds(
 		const playerHand = createHand(myFinalHand, finalCommunityCards);
 		const oppHand = createHand(opponentFinalHand, finalCommunityCards);
 
-		const myScore = evaluateHand(playerHand);
-		const opponentScore = evaluateHand(oppHand);
+		switch (compareHands(playerHand, oppHand)) {
+			case HandResult.victory:
+				playerWins++;
+				break;
 
-		// Compare the two scores
-		if (myScore > opponentScore) {
-			playerWins++;
-		} else if (myScore === opponentScore) {
-			switch (compareHands(playerHand, oppHand)) {
-				case HandResult.victory:
-					playerWins++;
-					break;
-				case HandResult.split:
-					break;
-				case HandResult.loss:
-					opponentWins++;
-					break;
-			}
-		} else {
-			opponentWins++;
+			case HandResult.loss:
+				opponentWins++;
+				break;
+
+			case HandResult.split:
+				splits++;
+				break;
+
+			case HandResult.error:
+				console.error('Error in hand comparison:', { playerHand, oppHand, finalCommunityCards });
+				errors++;
+				break;
 		}
 	}
 
-	const totalCombinations = combinationsToProcess.length;
-	const playerWinPercentage = (playerWins / totalCombinations) * 100;
-	const opponentWinPercentage = (opponentWins / totalCombinations) * 100;
+	const totalValidCombinations = shuffledCombinations.length - errors || 1; // Prevent division by zero
+	const playerWinPercentage = ((playerWins + splits / 2) / totalValidCombinations) * 100;
+	const opponentWinPercentage = ((opponentWins + splits / 2) / totalValidCombinations) * 100;
 
 	return {
 		playerOdds: playerWinPercentage,
@@ -93,46 +98,8 @@ function generateRemainingDeck(
 	communityCards: string[]
 ): string[] {
 	const deck = createDeck();
-	const usedCards = new Set([
-		ownHand.hand[0],
-		ownHand.hand[1],
-		opponentHand.hand[0],
-		opponentHand.hand[1],
-		...communityCards
-	]);
+	const usedCards = new Set([...ownHand.hand, ...opponentHand.hand, ...communityCards]);
 
 	// Remove known cards from the deck
 	return deck.filter((card) => !usedCards.has(card));
-}
-
-// Dirty helper that basically reverses hand order.
-function getStrenghtFromHandType(hand: HandType): number {
-	switch (hand) {
-		case HandType.royal_flush:
-			return 9;
-		case HandType.straight_flush:
-			return 8;
-		case HandType.four_of_a_kind:
-			return 7;
-		case HandType.full_house:
-			return 6;
-		case HandType.flush:
-			return 5;
-		case HandType.straight:
-			return 4;
-		case HandType.three_of_a_kind:
-			return 3;
-		case HandType.two_pair:
-			return 2;
-		case HandType.pair:
-			return 1;
-		case HandType.high_card:
-			return 0;
-	}
-}
-
-// We are basically checking which "type" the hand hit.
-function evaluateHand(hand: Hand): number {
-	const initialStrenght = getStrenghtFromHandType(hand.type);
-	return initialStrenght;
 }

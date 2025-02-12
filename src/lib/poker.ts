@@ -62,15 +62,17 @@ const handOrder = {
 
 // Compare two hands against each other.
 export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {
+	// Ensure both hands have a valid order before comparison
+	if (ownHand.order === null || opponentHand.order === null) {
+		return HandResult.error;
+	}
+
 	if (ownHand.order < opponentHand.order) {
 		return HandResult.victory;
 	} else if (ownHand.order > opponentHand.order) {
 		return HandResult.loss;
-	} else if (ownHand.order == opponentHand.order) {
-		return compareSameStrenght(ownHand, opponentHand);
-	} else {
-		return HandResult.error;
 	}
+	return compareSameStrenght(ownHand, opponentHand);
 }
 
 // Get hand "type" from hand.

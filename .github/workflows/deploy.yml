@@ -28,8 +28,8 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          artifact_name: 'build-artifact'
-          path: './build'
+          name: 'build-artifact'
+          path: 'build/'
 
   deploy:
     needs: build_site

@@ -1,4 +1,4 @@
-import { type Role } from "$lib/types/role";
+import { type Role } from '$lib/types/role';
 
 export type GameData = {
 	player1Hand: string[];

@@ -7,6 +7,6 @@ export function verifyUniqueness(
 	const allCards = [...hand1, ...hand2, ...communityCards];
 
 	// Set automatically removes duplicates.
-    const uniqueCards = new Set(allCards);
+	const uniqueCards = new Set(allCards);
 	return uniqueCards.size === allCards.length;
 }

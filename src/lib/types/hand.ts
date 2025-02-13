@@ -1,5 +1,5 @@
-import { HandType } from "$lib/constants/hand_type";
-import { HandOrder } from '$lib/constants/hand_order'
+import { HandType } from '$lib/constants/hand_type';
+import { HandOrder } from '$lib/constants/hand_order';
 
 export type Hand = {
 	type: HandType;

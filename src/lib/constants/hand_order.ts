@@ -1,4 +1,4 @@
-import { HandType } from "$lib/constants/hand_type";
+import { HandType } from '$lib/constants/hand_type';
 
 export const HandOrder = {
 	[HandType.royal_flush]: 1,

@@ -13,10 +13,9 @@ export function getOdds(
 ): { playerOdds: number; opponentOdds: number } {
 	const remainingDeck = generateRemainingDeck(ownHand, opponentHand, communityCards);
 
-	// Determine how many cards are needed to complete the community cards (either 1 or 2)
+	// Determine how many cards are needed to complete the community cards.
 	const cardsNeeded = 5 - communityCards.length;
 
-	// Generate all combinations of remaining cards
 	const shuffledCombinations = shuffle(getAllCombinations(remainingDeck, cardsNeeded)).slice(
 		0,
 		combinationAmount
@@ -37,12 +36,8 @@ export function getOdds(
 			continue;
 		}
 
-		// Evaluate both hands
-		const myFinalHand = [...ownHand.hand, ...finalCommunityCards];
-		const opponentFinalHand = [...opponentHand.hand, ...finalCommunityCards];
-
-		const playerHand = createHand(myFinalHand, finalCommunityCards);
-		const oppHand = createHand(opponentFinalHand, finalCommunityCards);
+		const playerHand = createHand([ownHand.hand[0], ownHand.hand[1]], finalCommunityCards);
+		const oppHand = createHand([opponentHand.hand[0], opponentHand.hand[1]], finalCommunityCards);
 
 		switch (compareHands(playerHand, oppHand)) {
 			case HandResult.victory:
@@ -65,8 +60,11 @@ export function getOdds(
 	}
 
 	const totalValidCombinations = shuffledCombinations.length - errors || 1; // Prevent division by zero
-	const playerWinPercentage = ((playerWins + splits / 2) / totalValidCombinations) * 100;
-	const opponentWinPercentage = ((opponentWins + splits / 2) / totalValidCombinations) * 100;
+	const playerWinPercentage = (playerWins / totalValidCombinations) * 100;
+	const opponentWinPercentage = (opponentWins / totalValidCombinations) * 100;
+
+	//const tiePercentage = (splits/ totalValidCombinations) * 100;
+	//console.log("Tie: ", tiePercentage);
 
 	return {
 		playerOdds: playerWinPercentage,

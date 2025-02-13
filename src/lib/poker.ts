@@ -1,8 +1,8 @@
-import { extractRank, extractSuit, rankValue } from "$lib/util";
-import { type Hand } from "$lib/types/hand";
-import { HandResult } from "$lib/constants/hand_result";
-import { HandType } from "$lib/constants/hand_type";
-import { HandOrder } from "$lib/constants/hand_order";
+import { extractRank, extractSuit, rankValue } from '$lib/util';
+import { type Hand } from '$lib/types/hand';
+import { HandResult } from '$lib/constants/hand_result';
+import { HandType } from '$lib/constants/hand_type';
+import { HandOrder } from '$lib/constants/hand_order';
 
 // Compare two hands against each other.
 export function compareHands(ownHand: Hand, opponentHand: Hand): HandResult {

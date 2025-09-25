@@ -12,6 +12,7 @@
 	import { verifyUniqueness } from '$lib/verify_uniqueness';
 	import type { GameData } from '$lib/types/game_data';
 	import { compress } from '$lib/compressor';
+	import { Choice } from '$lib/constants/choice';
 
 	let g: GameData = {
 		player1Hand: [],
@@ -23,16 +24,6 @@
 	// Links
 	let shareableLink = '';
 	let ownLink = '';
-
-	// Input field value.
-	enum Choice {
-		random = 'Random',
-		weak = 'Weak',
-		strong = 'Strong',
-		suited = 'Suited',
-		offsuit = 'Offsuit',
-		pair = 'Pair'
-	}
 
 	// Input field choices.
 	let player1Choice = Choice.random;
